@@ -3,7 +3,10 @@ require('dotenv').config();
 var url = require('url');
 var io = require('socket.io');
 var fs = require('fs');
+var MyModel = require('./Employee');
 
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/local_demo');
 
 
 var server = http.createServer(function (request, response) {
@@ -31,7 +34,7 @@ var server = http.createServer(function (request, response) {
                     // Write the content of the file to response body
                     response.write(data.toString());
                 }
-                // Send the response body 
+                //errors: Send the response body 
                 response.end();
             });
             break;
@@ -54,10 +57,66 @@ var clients = 0;
 
 
 listener.on('connection', function (socket) {
-     socket.on("chat", function(message) {
-         console.log(message);
-    	socket.broadcast.emit("chat", message);
+    socket.on("chat", function (message) {
+        console.log(message);
+        socket.broadcast.emit("chat", message);
     });
 
-    
+
+});
+
+
+var employee = MyModel({
+    first_name: 'Johan',
+    last_name: 'GOGs',
+    ID: 'Cue-865',
+    designation: 'SSE'
+});
+
+// save the user
+employee.save(function (err) {
+    if (!err) {
+        console.log('User created!');
+    } else {
+        console.log(err.errors);
+    }
+});
+
+
+MyModel.find({ first_name: 'Johan' }, function (err, users) {
+    if (err) throw err;
+
+    // object of all the users
+    console.log(users);
+});
+
+MyModel.findOneAndUpdate({ first_name: 'Johan' }, { first_name: 'Peter' }, function (err, user) {
+    if (err) throw err;
+
+    // we have the updated user returned to us
+    console.log(user);
+});
+
+
+MyModel.find({ first_name: 'Peter' }, function (err, users) {
+    if (err) throw err;
+
+    // object of all the users
+    console.log(users);
+});
+
+MyModel.findOneAndRemove({ first_name: 'Peter' }, function(err) {
+  if (err) throw err;
+
+  // we have deleted the user
+  console.log('User deleted!');
+});
+
+
+
+MyModel.find({ first_name: 'Peter' }, function (err, users) {
+    if (err) throw err;
+
+    // object of all the users
+    console.log(users);
 });
